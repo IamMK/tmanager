@@ -1,57 +1,119 @@
 <template>
-  <div>
-    <input
-      class="todo__input"
-      type="text"
-      name=""
-      placeholder="Type your todo"
-      v-model="inputTitleContent"
-      @keyup.enter="newTask"
-    />
-    <input
-      class="todo__input"
-      type="text"
-      name=""
-      placeholder="Type your todo"
-      v-model="inputSubjectContent"
-      @keyup.enter="newTask"
-    />
-    <div v-for="(task, index) in tasks" :key="task.id" class="todo__items">
-      <div class="todo__item">
-        <div class="todo__title">
-          <div v-if="!task.titleEditing" @dblclick="editTaskTitle(task)">
-            {{ task.title }}
-          </div>
-          <input
-            v-else
-            type="text"
-            name="todoTitle"
-            v-model="task.title"
-            @blur="editTaskTitle(task)"
-            @keyup.enter="editTaskTitle(task)"
-            @keyup.esc="cancelEditTitle(task)"
-            v-focus
-          />
-        </div>
-        <div class="todo__description">
-          <div v-if="!task.subjectEditing" @dblclick="editTaskSubject(task)">
-            {{ task.content }}
-          </div>
-          <input
-            v-else
-            type="text"
-            name="todoTitle"
-            v-model="task.content"
-            @blur="editTaskSubject(task)"
-            @keyup.enter="editTaskSubject(task)"
-            @keyup.esc="cancelEditSubject(task)"
-            v-focus
-          />
-        </div>
-        <div class="todo__remove" @click="removeTask(index)">&times;</div>
-      </div>
+  <section class="todoContainer">
+    <div class="todoContainer__options">
+      <button
+        :class="{ active: filter == 'all' }"
+        class="todoContainer__filterButton"
+        @click="filter = 'all'"
+      >
+        All
+      </button>
+      <button
+        :class="{ active: filter == 'active' }"
+        class="todoContainer__filterButton"
+        @click="filter = 'active'"
+      >
+        Active
+      </button>
+      <button
+        :class="{ active: filter == 'completed' }"
+        class="todoContainer__filterButton"
+        @click="filter = 'completed'"
+      >
+        Completed
+      </button>
     </div>
-  </div>
+
+    <article class="todoManagement">
+      <input
+        class="todoManagement__newTask"
+        type="text"
+        name=""
+        placeholder="Type your todo"
+        v-model="inputTitleContent"
+        @keyup.enter="newTask"
+      />
+      <input
+        class="todoManagement__newTask"
+        type="text"
+        name=""
+        placeholder="Type your todo"
+        v-model="inputSubjectContent"
+        @keyup.enter="newTask"
+      />
+    </article>
+    <article class="taskContainer">
+      <section
+        v-for="(task, index) in tasksFiltered"
+        :key="task.id"
+        class="task"
+      >
+        <figure class="task__container">
+          <header class="task__header">
+            <input
+              type="checkbox"
+              v-model="task.completed"
+              class="task__complete"
+            />
+            <h3
+              class="task__title"
+              v-if="!task.titleEditing"
+              @dblclick="editTaskTitle(task)"
+            >
+              {{ task.title }}
+            </h3>
+            <input
+              v-else
+              type="text"
+              name="todoTitle"
+              v-model="task.title"
+              @blur="editTaskTitle(task)"
+              @keyup.enter="editTaskTitle(task)"
+              @keyup.esc="cancelEditTitle(task)"
+              v-focus
+            />
+            <button class="task__remove" @click="removeTask(index)">
+              &times;
+            </button>
+          </header>
+          <figcaption class="task__description">
+            <p v-if="!task.subjectEditing" @dblclick="editTaskSubject(task)">
+              {{ task.content }}
+            </p>
+            <input
+              v-else
+              type="text"
+              name="taskTitle"
+              v-model="task.content"
+              @blur="editTaskSubject(task)"
+              @keyup.enter="editTaskSubject(task)"
+              @keyup.esc="cancelEditSubject(task)"
+              v-focus
+            />
+          </figcaption>
+        </figure>
+      </section>
+    </article>
+
+    <article class="task__options">
+      <label>
+        <input
+          type="checkbox"
+          :checked="!anyRemaining"
+          @change="checkAllTasks"
+        />
+        Check all
+      </label>
+      <p>{{ remaining }} items left</p>
+      <button
+        class="task__clearBtn"
+        v-if="showClearCompletedButton"
+        @click="clearCompleted"
+      >
+        Clear Completed
+      </button>
+    </article>
+  </section>
 </template>
 
 <script>
@@ -61,13 +123,14 @@ export default {
     return {
       inputTitleContent: "",
       inputSubjectContent: "",
+      filter: "all",
       tasks: [
         {
           id: 0,
           title: "Start the App",
           content:
             "If I want to pass my final exam and take engineer title I have to do that",
-          completed: false,
+          completed: true,
           titleEditing: false,
           subjectEditing: false,
         },
@@ -79,8 +142,39 @@ export default {
           titleEditing: false,
           subjectEditing: false,
         },
+        {
+          id: 2,
+          title: "Add functions for team",
+          content: `Todo - done,
+          Style - done,
+          Functions for team - not yet`,
+          completed: false,
+          titleEditing: false,
+          subjectEditing: false,
+        },
       ],
     };
+  },
+  computed: {
+    remaining() {
+      return this.tasks.filter((task) => !task.completed).length;
+    },
+    anyRemaining() {
+      return this.remaining != 0;
+    },
+    tasksFiltered() {
+      if (this.filter == "all") {
+        return this.tasks;
+      } else if (this.filter == "active") {
+        return this.tasks.filter((task) => !task.completed);
+      } else if (this.filter == "completed") {
+        return this.tasks.filter((task) => task.completed);
+      }
+      return this.todos;
+    },
+    showClearCompletedButton() {
+      return this.tasks.filter((todo) => todo.completed).length > 0;
+    },
   },
   directives: {
     focus: {
@@ -119,10 +213,12 @@ export default {
       this.tasks.splice(index, 1);
     },
     editTaskTitle(task) {
+      if (task.title.trim() == "") task.title = this.beforeEditTitle;
       this.beforeEditTitle = task.title;
       task.titleEditing = !task.titleEditing;
     },
     editTaskSubject(task) {
+      if (task.content.trim() == "") task.content = this.beforeEditSubject;
       this.beforeEditSubject = task.content;
       task.subjectEditing = !task.subjectEditing;
     },
@@ -134,19 +230,137 @@ export default {
       task.content = this.beforeEditSubject;
       task.subjectEditing = false;
     },
+    checkAllTasks() {
+      this.tasks.forEach((task) => (task.completed = event.target.checked));
+    },
+    clearCompleted() {
+      this.tasks = this.tasks.filter((task) => !task.completed);
+    },
   },
 };
 </script>
 
-<style scoped lang="scss">
-.todo {
-  &__input {
+<style lang="scss">
+$filterButtons: 3;
+body {
+  background-color: #5f5f5f;
+  color: #000;
+}
+
+.todoManagement {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  &__newTask {
     width: 100%;
-    padding: 10px 10px;
-    font-size: 18px;
-    margin-bottom: 16px;
+    height: 5vh;
+    margin: 5px;
     &:focus {
       outline: 0;
+      border-color: #f2ca52;
+    }
+  }
+}
+
+.todoContainer {
+  margin: auto;
+  width: 80%;
+  height: 100%;
+  // &__newTask {
+  //   width: 100%;
+  //   padding: 10px 10px;
+  //   font-size: 18px;
+  //   margin-bottom: 16px;
+  //   color: #000;
+
+  // }
+  &__options {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  &__filterButton {
+    width: calc(100% / #{$filterButtons});
+    height: 5vh;
+    margin: 2px;
+
+    background-color: #d9ba5f;
+    border-radius: 8px;
+    border-style: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 0 1.6rem;
+    text-align: center;
+    text-shadow: rgba(0, 0, 0, 0.25) 0 3px 8px;
+    transition: all 0.5s;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+
+    &:hover {
+      box-shadow: rgba(80, 63, 205, 0.5) 0 1px 30px;
+      transition-duration: 0.1s;
+    }
+  }
+}
+.taskContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  @media screen and (max-width: 950px) {
+    justify-content: center;
+  }
+}
+.task {
+  width: 300px;
+  background-color: #bfa36f;
+  border-radius: 20px;
+  @media screen and (max-width: 950px) {
+    width: 100%;
+  }
+  padding: 20px;
+  margin: 20px;
+  &__container {
+    width: 100%;
+  }
+  &__header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+
+    h3 {
+      font-size: 25px;
+      margin: 10px;
+    }
+  }
+  &__title {
+    align-self: center;
+  }
+  &__complete {
+    &:checked {
+      background-color: #f2d852;
+    }
+  }
+  &__remove {
+    border-color: transparent;
+    background-color: transparent;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+  }
+  &__clearBtn {
+    background-color: #d9ba5f;
+    margin: 2px;
+    border-color: transparent;
+    padding: 10px;
+    font-size: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    &:hover {
+      // border-color: #000;
+      background-color: #f2ca52;
     }
   }
 }
