@@ -43,56 +43,17 @@
       />
     </article>
     <article class="taskContainer">
-      <section
-        v-for="(task, index) in tasksFiltered"
-        :key="task.id"
+      <the-task
+        v-for="(taskItem, index) in tasksFiltered"
+        :key="taskItem.id"
         class="task"
+        :taskItem="taskItem"
+        :index="index"
+        :checkAllTasks="!anyRemaining"
+        @deleteClick="removeTask"
+        @emitedTask="editTaskTitle"
       >
-        <figure class="task__container">
-          <header class="task__header">
-            <input
-              type="checkbox"
-              v-model="task.completed"
-              class="task__complete"
-            />
-            <h3
-              class="task__title"
-              v-if="!task.titleEditing"
-              @dblclick="editTaskTitle(task)"
-            >
-              {{ task.title }}
-            </h3>
-            <input
-              v-else
-              type="text"
-              name="todoTitle"
-              v-model="task.title"
-              @blur="editTaskTitle(task)"
-              @keyup.enter="editTaskTitle(task)"
-              @keyup.esc="cancelEditTitle(task)"
-              v-focus
-            />
-            <button class="task__remove" @click="removeTask(index)">
-              &times;
-            </button>
-          </header>
-          <figcaption class="task__description">
-            <p v-if="!task.subjectEditing" @dblclick="editTaskSubject(task)">
-              {{ task.content }}
-            </p>
-            <input
-              v-else
-              type="text"
-              name="taskTitle"
-              v-model="task.content"
-              @blur="editTaskSubject(task)"
-              @keyup.enter="editTaskSubject(task)"
-              @keyup.esc="cancelEditSubject(task)"
-              v-focus
-            />
-          </figcaption>
-        </figure>
-      </section>
+      </the-task>
     </article>
 
     <article class="task__options">
@@ -117,8 +78,13 @@
 </template>
 
 <script>
+import TheTask from "./TheTask";
+
 export default {
   name: "TheTodoList",
+  components: {
+    TheTask,
+  },
   data() {
     return {
       inputTitleContent: "",
@@ -170,17 +136,10 @@ export default {
       } else if (this.filter == "completed") {
         return this.tasks.filter((task) => task.completed);
       }
-      return this.todos;
+      return this.tasks;
     },
     showClearCompletedButton() {
       return this.tasks.filter((todo) => todo.completed).length > 0;
-    },
-  },
-  directives: {
-    focus: {
-      inserted: function (el) {
-        el.focus();
-      },
     },
   },
   methods: {
@@ -212,23 +171,8 @@ export default {
     removeTask(index) {
       this.tasks.splice(index, 1);
     },
-    editTaskTitle(task) {
-      if (task.title.trim() == "") task.title = this.beforeEditTitle;
-      this.beforeEditTitle = task.title;
-      task.titleEditing = !task.titleEditing;
-    },
-    editTaskSubject(task) {
-      if (task.content.trim() == "") task.content = this.beforeEditSubject;
-      this.beforeEditSubject = task.content;
-      task.subjectEditing = !task.subjectEditing;
-    },
-    cancelEditTitle(task) {
-      task.title = this.beforeEditTitle;
-      task.titleEditing = false;
-    },
-    cancelEditSubject(task) {
-      task.content = this.beforeEditSubject;
-      task.subjectEditing = false;
+    editTaskTitle(data) {
+      this.tasks.splice(data.index, 1, data.task);
     },
     checkAllTasks() {
       this.tasks.forEach((task) => (task.completed = event.target.checked));
@@ -266,14 +210,6 @@ body {
   margin: auto;
   width: 80%;
   height: 100%;
-  // &__newTask {
-  //   width: 100%;
-  //   padding: 10px 10px;
-  //   font-size: 18px;
-  //   margin-bottom: 16px;
-  //   color: #000;
-
-  // }
   &__options {
     width: 100%;
     display: flex;
@@ -359,7 +295,6 @@ body {
     border-radius: 10px;
     cursor: pointer;
     &:hover {
-      // border-color: #000;
       background-color: #f2ca52;
     }
   }
