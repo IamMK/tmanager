@@ -1,28 +1,6 @@
 <template>
   <section class="todoContainer">
-    <div class="todoContainer__options">
-      <button
-        :class="{ active: filter == 'all' }"
-        class="todoContainer__filterButton"
-        @click="filter = 'all'"
-      >
-        All
-      </button>
-      <button
-        :class="{ active: filter == 'active' }"
-        class="todoContainer__filterButton"
-        @click="filter = 'active'"
-      >
-        Active
-      </button>
-      <button
-        :class="{ active: filter == 'completed' }"
-        class="todoContainer__filterButton"
-        @click="filter = 'completed'"
-      >
-        Completed
-      </button>
-    </div>
+    <tasks-filter></tasks-filter>
 
     <article class="todoManagement">
       <input
@@ -49,41 +27,36 @@
         class="task"
         :taskItem="taskItem"
         :index="index"
-        :checkAllTasks="!anyRemaining"
-        @deleteClick="removeTask"
-        @emitedTask="editTaskTitle"
+        :checkAll="!anyRemaining"
       >
       </the-task>
     </article>
 
     <article class="task__options">
-      <label>
-        <input
-          type="checkbox"
-          :checked="!anyRemaining"
-          @change="checkAllTasks"
-        />
-        Check all
-      </label>
-      <p>{{ remaining }} items left</p>
-      <button
-        class="task__clearBtn"
-        v-if="showClearCompletedButton"
-        @click="clearCompleted"
-      >
-        Clear Completed
-      </button>
+      <check-all-button :anyRemaining="anyRemaining"></check-all-button>
+      <todo-remaining :remaining="remaining"></todo-remaining>
+      <clear-completed
+        :showClearCompletedButton="showClearCompletedButton"
+      ></clear-completed>
     </article>
   </section>
 </template>
 
 <script>
 import TheTask from "./TheTask";
+import TodoRemaining from "./TheTodoItemsRemaining";
+import CheckAllButton from "./TheTodoCheckAll";
+import TasksFilter from "./TheTasksFiltered";
+import ClearCompleted from "./TheClearTasksButton";
 
 export default {
   name: "TheTodoList",
   components: {
     TheTask,
+    TodoRemaining,
+    CheckAllButton,
+    TasksFilter,
+    ClearCompleted,
   },
   data() {
     return {
@@ -120,6 +93,15 @@ export default {
         },
       ],
     };
+  },
+  created() {
+    this.eventBus.on("deleteClick", (index) => this.removeTask(index));
+    this.eventBus.on("emitedTask", (data) => this.editTask(data));
+    this.eventBus.on("allChecked", (anyRemaining) =>
+      this.checkAllTasks(anyRemaining)
+    );
+    this.eventBus.on("filterChanged", (filter) => (this.filter = filter));
+    this.eventBus.on("clearButtonClicked", () => this.clearCompleted());
   },
   computed: {
     remaining() {
@@ -171,7 +153,7 @@ export default {
     removeTask(index) {
       this.tasks.splice(index, 1);
     },
-    editTaskTitle(data) {
+    editTask(data) {
       this.tasks.splice(data.index, 1, data.task);
     },
     checkAllTasks() {

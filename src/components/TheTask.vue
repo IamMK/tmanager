@@ -1,7 +1,4 @@
 <template>
-  <!-- 
-https://www.youtube.com/watch?v=7AXiN5mrOgY
- -->
   <figure class="task__container">
     <header class="task__header">
       <input
@@ -80,10 +77,10 @@ export default {
   },
   methods: {
     removeTask(index) {
-      this.$emit("deleteClick", index);
+      this.eventBus.emit("deleteClick", index);
     },
     emitTask() {
-      this.$emit("emitedTask", {
+      this.eventBus.emit("emitedTask", {
         index: this.index,
         task: {
           id: this.id,
