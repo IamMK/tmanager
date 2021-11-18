@@ -11,15 +11,17 @@
 <script>
 export default {
   name: "clear-tasks-button",
-  props: {
-    showClearCompletedButton: {
-      type: Boolean,
-      required: true,
+  computed: {
+    showClearCompletedButton() {
+      return this.$store.getters.showClearCompletedButton;
     },
   },
   methods: {
     clearCompleted() {
-      this.eventBus.emit("clearButtonClicked");
+      this.$store.commit("clearCompleted");
+      // this.$store.state.tasks = this.$store.state.tasks.filter(
+      //   (task) => !task.completed
+      // );
     },
   },
 };

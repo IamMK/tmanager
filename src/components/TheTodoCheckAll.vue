@@ -8,15 +8,17 @@
 <script>
 export default {
   name: "check-all-button",
-  props: {
-    anyRemaining: {
-      type: Boolean,
-      required: true,
+  computed: {
+    anyRemaining() {
+      return this.$store.getters.anyRemaining;
     },
   },
   methods: {
     allChecked() {
-      this.eventBus.emit("allChecked", this.anyRemaining);
+      this.$store.commit("checkAll", event.target.checked);
+      // this.$store.state.tasks.forEach(
+      //   (task) => (task.completed = event.target.checked)
+      // );
     },
   },
 };

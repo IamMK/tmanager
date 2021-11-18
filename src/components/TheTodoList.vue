@@ -22,22 +22,19 @@
     </article>
     <article class="taskContainer">
       <the-task
-        v-for="(taskItem, index) in tasksFiltered"
+        v-for="taskItem in tasksFiltered"
         :key="taskItem.id"
         class="task"
         :taskItem="taskItem"
-        :index="index"
         :checkAll="!anyRemaining"
       >
       </the-task>
     </article>
 
     <article class="task__options">
-      <check-all-button :anyRemaining="anyRemaining"></check-all-button>
-      <todo-remaining :remaining="remaining"></todo-remaining>
-      <clear-completed
-        :showClearCompletedButton="showClearCompletedButton"
-      ></clear-completed>
+      <check-all-button></check-all-button>
+      <todo-remaining></todo-remaining>
+      <clear-completed></clear-completed>
     </article>
   </section>
 </template>
@@ -62,66 +59,20 @@ export default {
     return {
       inputTitleContent: "",
       inputSubjectContent: "",
-      filter: "all",
-      tasks: [
-        {
-          id: 0,
-          title: "Start the App",
-          content:
-            "If I want to pass my final exam and take engineer title I have to do that",
-          completed: true,
-          titleEditing: false,
-          subjectEditing: false,
-        },
-        {
-          id: 1,
-          title: "Pass final exam",
-          content: "Target",
-          completed: false,
-          titleEditing: false,
-          subjectEditing: false,
-        },
-        {
-          id: 2,
-          title: "Add functions for team",
-          content: `Todo - done,
-          Style - done,
-          Functions for team - not yet`,
-          completed: false,
-          titleEditing: false,
-          subjectEditing: false,
-        },
-      ],
     };
-  },
-  created() {
-    this.eventBus.on("deleteClick", (index) => this.removeTask(index));
-    this.eventBus.on("emitedTask", (data) => this.editTask(data));
-    this.eventBus.on("allChecked", (anyRemaining) =>
-      this.checkAllTasks(anyRemaining)
-    );
-    this.eventBus.on("filterChanged", (filter) => (this.filter = filter));
-    this.eventBus.on("clearButtonClicked", () => this.clearCompleted());
   },
   computed: {
     remaining() {
-      return this.tasks.filter((task) => !task.completed).length;
+      return this.$store.getters.remaining;
     },
     anyRemaining() {
-      return this.remaining != 0;
+      return this.$store.getters.anyRemaining;
     },
     tasksFiltered() {
-      if (this.filter == "all") {
-        return this.tasks;
-      } else if (this.filter == "active") {
-        return this.tasks.filter((task) => !task.completed);
-      } else if (this.filter == "completed") {
-        return this.tasks.filter((task) => task.completed);
-      }
-      return this.tasks;
+      return this.$store.getters.tasksFiltered;
     },
     showClearCompletedButton() {
-      return this.tasks.filter((todo) => todo.completed).length > 0;
+      return this.$store.getters.showClearCompletedButton;
     },
   },
   methods: {
@@ -139,28 +90,12 @@ export default {
 
         alert(alertText);
       } else {
-        this.tasks.push({
-          id: this.tasks.length,
+        this.$store.commit("addTask", {
           title: this.inputTitleContent,
           content: this.inputSubjectContent,
-          completed: false,
-          titleEditing: false,
-          subjectEditing: false,
         });
         this.inputSubjectContent = this.inputTitleContent = "";
       }
-    },
-    removeTask(index) {
-      this.tasks.splice(index, 1);
-    },
-    editTask(data) {
-      this.tasks.splice(data.index, 1, data.task);
-    },
-    checkAllTasks() {
-      this.tasks.forEach((task) => (task.completed = event.target.checked));
-    },
-    clearCompleted() {
-      this.tasks = this.tasks.filter((task) => !task.completed);
     },
   },
 };

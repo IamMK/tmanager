@@ -3,21 +3,21 @@
     <button
       :class="{ active: filter == 'all' }"
       class="todoContainer__filterButton"
-      @click="changedFilter('all')"
+      @click="changeFilter('all')"
     >
       All
     </button>
     <button
       :class="{ active: filter == 'active' }"
       class="todoContainer__filterButton"
-      @click="changedFilter('active')"
+      @click="changeFilter('active')"
     >
       Active
     </button>
     <button
       :class="{ active: filter == 'completed' }"
       class="todoContainer__filterButton"
-      @click="changedFilter('completed')"
+      @click="changeFilter('completed')"
     >
       Completed
     </button>
@@ -27,15 +27,15 @@
 <script>
 export default {
   name: "tasks-filter",
-  data() {
-    return {
-      filter: "all",
-    };
+  computed: {
+    filter() {
+      return this.$store.state.filter;
+    },
   },
   methods: {
-    changedFilter(filter) {
-      this.filter = filter;
-      this.eventBus.emit("filterChanged", filter);
+    changeFilter(filter) {
+      this.$store.commit("updateFilter", filter);
+      // this.$store.state.filter = filter;
     },
   },
 };

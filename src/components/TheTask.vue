@@ -1,4 +1,6 @@
 <template>
+  <!-- https://www.youtube.com/watch?v=yrCGcnn4_RU -->
+
   <figure class="task__container">
     <header class="task__header">
       <input
@@ -21,7 +23,7 @@
         autofocus
         v-focus
       />
-      <button class="task__remove" @click="removeTask(index)">&times;</button>
+      <button class="task__remove" @click="removeTask">&times;</button>
     </header>
     <figcaption class="task__description">
       <p v-if="!subjectEditing" @dblclick="editTaskSubject">
@@ -76,33 +78,43 @@ export default {
     },
   },
   methods: {
-    removeTask(index) {
-      this.eventBus.emit("deleteClick", index);
+    removeTask() {
+      this.$store.commit("removeTask", this.id);
+      // const index = this.$store.state.tasks.findIndex((item) => item.id == id);
+      // this.$store.state.tasks.splice(index, 1);
     },
-    emitTask() {
-      this.eventBus.emit("emitedTask", {
-        index: this.index,
-        task: {
-          id: this.id,
-          title: this.title,
-          content: this.content,
-          completed: this.completed,
-          titleEditing: this.titleEditing,
-          subjectEditing: this.subjectEditing,
-        },
+    updateTask() {
+      this.$store.commit("updateTask", {
+        id: this.id,
+        title: this.title,
+        content: this.content,
+        completed: this.completed,
+        titleEditing: this.titleEditing,
+        subjectEditing: this.subjectEditing,
       });
+      // const index = this.$store.state.tasks.findIndex(
+      //   (item) => item.id == this.id
+      // );
+      // this.$store.state.tasks.splice(index, 1, {
+      //   id: this.id,
+      //   title: this.title,
+      //   content: this.content,
+      //   completed: this.completed,
+      //   titleEditing: this.titleEditing,
+      //   subjectEditing: this.subjectEditing,
+      // });
     },
     editTaskTitle() {
       if (this.title.trim() == "") this.title = this.beforeEditTitle;
       this.beforeEditTitle = this.title;
       this.titleEditing = !this.titleEditing;
-      this.emitTask();
+      this.updateTask();
     },
     editTaskSubject() {
       if (this.content.trim() == "") this.content = this.beforeEditSubject;
       this.beforeEditSubject = this.content;
       this.subjectEditing = !this.subjectEditing;
-      this.emitTask();
+      this.updateTask();
     },
     cancelEditTitle() {
       this.title = this.beforeEditTitle;
