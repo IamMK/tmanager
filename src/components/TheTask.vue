@@ -1,6 +1,4 @@
 <template>
-  <!-- https://www.youtube.com/watch?v=yrCGcnn4_RU -->
-
   <figure class="task__container">
     <header class="task__header">
       <input
@@ -80,8 +78,6 @@ export default {
   methods: {
     removeTask() {
       this.$store.commit("removeTask", this.id);
-      // const index = this.$store.state.tasks.findIndex((item) => item.id == id);
-      // this.$store.state.tasks.splice(index, 1);
     },
     updateTask() {
       this.$store.commit("updateTask", {
@@ -92,17 +88,6 @@ export default {
         titleEditing: this.titleEditing,
         subjectEditing: this.subjectEditing,
       });
-      // const index = this.$store.state.tasks.findIndex(
-      //   (item) => item.id == this.id
-      // );
-      // this.$store.state.tasks.splice(index, 1, {
-      //   id: this.id,
-      //   title: this.title,
-      //   content: this.content,
-      //   completed: this.completed,
-      //   titleEditing: this.titleEditing,
-      //   subjectEditing: this.subjectEditing,
-      // });
     },
     editTaskTitle() {
       if (this.title.trim() == "") this.title = this.beforeEditTitle;
