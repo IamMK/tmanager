@@ -1,22 +1,22 @@
 <template>
-  <div class="todoContainer__options">
+  <div class="tasks__options">
     <button
       :class="{ active: filter == 'all' }"
-      class="todoContainer__filterButton"
+      class="tasks__filterButton"
       @click="changeFilter('all')"
     >
       All
     </button>
     <button
       :class="{ active: filter == 'active' }"
-      class="todoContainer__filterButton"
+      class="tasks__filterButton"
       @click="changeFilter('active')"
     >
       Active
     </button>
     <button
       :class="{ active: filter == 'completed' }"
-      class="todoContainer__filterButton"
+      class="tasks__filterButton"
       @click="changeFilter('completed')"
     >
       Completed

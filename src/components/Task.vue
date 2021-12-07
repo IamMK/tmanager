@@ -1,13 +1,18 @@
 <template>
-  <figure class="task__container">
+  <figure>
     <header class="task__header">
       <input
         type="checkbox"
         v-model="completed"
         class="task__complete"
-        @change="emitTask"
+        @change="updateTask"
       />
-      <h3 class="task__title" v-if="!titleEditing" @dblclick="editTaskTitle">
+      <h3
+        class="task__title"
+        :class="{ 'task--completed': completed }"
+        v-if="!titleEditing"
+        @dblclick="editTaskTitle"
+      >
         {{ title }}
       </h3>
       <input
@@ -24,7 +29,11 @@
       <button class="task__remove" @click="removeTask">&times;</button>
     </header>
     <figcaption class="task__description">
-      <p v-if="!subjectEditing" @dblclick="editTaskSubject">
+      <p
+        :class="{ 'task--completed': completed }"
+        v-if="!subjectEditing"
+        @dblclick="editTaskSubject"
+      >
         {{ content }}
       </p>
       <input
@@ -77,10 +86,10 @@ export default {
   },
   methods: {
     removeTask() {
-      this.$store.commit("removeTask", this.id);
+      this.$store.dispatch("removeTask", this.id);
     },
     updateTask() {
-      this.$store.commit("updateTask", {
+      this.$store.dispatch("updateTask", {
         id: this.id,
         title: this.title,
         content: this.content,
@@ -119,3 +128,9 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+.task--completed {
+  text-decoration: line-through;
+}
+</style>

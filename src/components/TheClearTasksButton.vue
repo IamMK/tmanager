@@ -18,7 +18,7 @@ export default {
   },
   methods: {
     clearCompleted() {
-      this.$store.commit("clearCompleted");
+      this.$store.dispatch("clearCompleted", this.$store.state.tasks);
       // this.$store.state.tasks = this.$store.state.tasks.filter(
       //   (task) => !task.completed
       // );

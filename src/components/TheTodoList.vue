@@ -1,10 +1,10 @@
 <template>
-  <section class="todoContainer">
+  <section class="tasks">
     <tasks-filter></tasks-filter>
 
-    <article class="todoManagement">
+    <article class="taskManagement">
       <input
-        class="todoManagement__newTask"
+        class="taskManagement__newTask"
         type="text"
         name=""
         placeholder="Type your todo"
@@ -12,7 +12,7 @@
         @keyup.enter="newTask"
       />
       <input
-        class="todoManagement__newTask"
+        class="taskManagement__newTask"
         type="text"
         name=""
         placeholder="Type your todo"
@@ -21,14 +21,14 @@
       />
     </article>
     <article class="taskContainer">
-      <the-task
+      <task
         v-for="taskItem in tasksFiltered"
         :key="taskItem.id"
         class="task"
         :taskItem="taskItem"
         :checkAll="!anyRemaining"
       >
-      </the-task>
+      </task>
     </article>
 
     <article class="task__options">
@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import TheTask from "./TheTask";
+import Task from "./Task";
 import TodoRemaining from "./TheTodoItemsRemaining";
 import CheckAllButton from "./TheTodoCheckAll";
 import TasksFilter from "./TheTasksFiltered";
@@ -49,7 +49,7 @@ import ClearCompleted from "./TheClearTasksButton";
 export default {
   name: "TheTodoList",
   components: {
-    TheTask,
+    Task,
     TodoRemaining,
     CheckAllButton,
     TasksFilter,
@@ -59,7 +59,11 @@ export default {
     return {
       inputTitleContent: "",
       inputSubjectContent: "",
+      // newTaskNo: ''
     };
+  },
+  created() {
+    this.$store.dispatch("retrieveTasks");
   },
   computed: {
     remaining() {
@@ -90,7 +94,7 @@ export default {
 
         alert(alertText);
       } else {
-        this.$store.commit("addTask", {
+        this.$store.dispatch("addTask", {
           title: this.inputTitleContent,
           content: this.inputSubjectContent,
         });
@@ -108,7 +112,7 @@ body {
   color: #000;
 }
 
-.todoManagement {
+.taskManagement {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -123,21 +127,29 @@ body {
   }
 }
 
-.todoContainer {
+.tasks {
+  box-sizing: border-box;
   margin: auto;
   width: 80%;
   height: 100%;
+  padding-top: 70px;
   &__options {
     width: 100%;
     display: flex;
     justify-content: space-between;
+    @media screen and (max-width: 950px) {
+      flex-direction: column;
+    }
   }
   &__filterButton {
     width: calc(100% / #{$filterButtons});
+    @media screen and (max-width: 950px) {
+      width: 100%;
+    }
     height: 5vh;
     margin: 2px;
 
-    background-color: #d9ba5f;
+    background-color: #ff8c00;
     border-radius: 8px;
     border-style: none;
     box-sizing: border-box;
@@ -161,23 +173,20 @@ body {
 .taskContainer {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: space-around;
   @media screen and (max-width: 950px) {
     justify-content: center;
   }
 }
 .task {
   width: 300px;
-  background-color: #bfa36f;
-  border-radius: 20px;
+  background-color: #ff8c00;
+  // border-radius: 20px;
   @media screen and (max-width: 950px) {
     width: 100%;
   }
   padding: 20px;
   margin: 20px;
-  &__container {
-    width: 100%;
-  }
   &__header {
     width: 100%;
     display: flex;
@@ -204,7 +213,7 @@ body {
     cursor: pointer;
   }
   &__clearBtn {
-    background-color: #d9ba5f;
+    background-color: #ff8c00;
     margin: 2px;
     border-color: transparent;
     padding: 10px;
